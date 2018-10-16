@@ -126,4 +126,4 @@ def saveResult(test_path,save_path,npyfile,flag_multi_class = False,num_class = 
     f_list.sort()
     for i,item in enumerate(npyfile):
         img = labelVisualize(num_class,COLOR_DICT,item) if flag_multi_class else item[:,:,0]
-        io.imsave(os.path.join(save_path,f_list[i]+"_predict.png"),img)
+        io.imsave(os.path.join(save_path,f_list[i].split('.')[0]+".png"),img)

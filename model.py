@@ -9,6 +9,28 @@ from keras.optimizers import *
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as keras
 
+def dice(y_true, y_pred):
+    y_true_int = keras.round(y_true)
+    y_pred_int = keras.round(y_pred)
+    axis = [1, 2]
+    intersection = keras.sum(y_true_int * y_pred_int, axis=axis)
+    area_true = keras.sum(y_true_int, axis=axis)
+    area_pred = keras.sum(y_pred_int, axis=axis)
+    batch_dice_coefs = (2 * intersection + 1) / (area_true + area_pred + 1)
+    return keras.mean(batch_dice_coefs, axis=0)
+
+
+def iou(y_true, y_pred):
+    y_true_int = keras.round(y_true)
+    y_pred_int = keras.round(y_pred)
+    axis = [1, 2]
+    intersection = keras.sum(y_true_int * y_pred_int, axis=axis)
+    area_true = keras.sum(y_true_int, axis=axis)
+    area_pred = keras.sum(y_pred_int, axis=axis)
+    union = area_true + area_pred - intersection
+    batch_iou_scores = (intersection + 1) / (union + 1)
+    return keras.mean(batch_iou_scores, axis=0)
+
 def merge(inputs, mode, concat_axis=-1):
     return concatenate(inputs, concat_axis)
 def unet(pretrained_weights = None,input_size = (256,256,1)):
@@ -57,7 +79,7 @@ def unet(pretrained_weights = None,input_size = (256,256,1)):
 
     model = Model(input = inputs, output = conv10)
 
-    model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
+    model.compile(optimizer = Adam(lr = 1e-5), loss = 'binary_crossentropy', metrics = ['accuracy',dice,iou])
     
     #model.summary()
 
